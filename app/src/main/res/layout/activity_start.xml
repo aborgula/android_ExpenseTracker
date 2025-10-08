@@ -77,7 +77,7 @@
             android:layout_marginStart="5dp"
             android:clickable="true"
             android:focusable="true"
-            android:paintFlags="underline"/>
+            />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

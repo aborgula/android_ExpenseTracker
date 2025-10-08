@@ -63,7 +63,7 @@
             android:layout_height="match_parent"
             app:itemIconTint="#959595"
             app:itemTextColor="#959595"
-            app:itemIconSize="27dp"
+            app:itemIconSize="30dp"
             app:labelVisibilityMode="labeled"
             android:background="@android:color/transparent"
             app:menu="@menu/bottom_menu"/>

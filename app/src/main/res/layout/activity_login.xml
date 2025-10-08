@@ -99,7 +99,7 @@
                     android:textSize="14sp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:paintFlags="underline"/>
+                    />
             </LinearLayout>
 
         </LinearLayout>

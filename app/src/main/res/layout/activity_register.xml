@@ -8,7 +8,6 @@
     android:gravity="center"
     android:background="#CBF6E6"> <!-- miętowe tło -->
 
-    <!-- Panel z białym tłem, zaokrąglonymi rogami i cieniem -->
     <LinearLayout
         android:background="@drawable/rounded_sheet"
         android:elevation="4dp"
@@ -99,7 +98,7 @@
                     android:textSize="14sp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:paintFlags="underline"/>
+                    />
             </LinearLayout>
 
         </LinearLayout>
