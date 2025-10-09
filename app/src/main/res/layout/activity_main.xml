@@ -7,17 +7,17 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!-- Górny pasek -->
     <LinearLayout
         android:id="@+id/top_bar"
         android:layout_width="match_parent"
-        android:layout_height="76dp"
+        android:layout_height="96dp"
         android:orientation="horizontal"
         android:background="#63B1A1"
         android:paddingStart="26dp"
         android:paddingEnd="26dp"
-        android:gravity="center_vertical">
+        android:paddingTop="45dp">
 
-        <!-- Nazwa użytkownika po lewej -->
         <TextView
             android:id="@+id/text_username"
             android:layout_width="0dp"
@@ -28,7 +28,6 @@
             android:textSize="24sp"
             android:textStyle="bold"/>
 
-        <!-- Ikona wylogowania po prawej -->
         <ImageView
             android:id="@+id/icon_logout"
             android:layout_width="32dp"
@@ -38,11 +37,13 @@
             android:clickable="true"
             android:focusable="true"/>
     </LinearLayout>
-    <!-- Kontener fragmentów -->
+
+    <!-- 🔹 Tutaj będą ładowane fragmenty -->
     <FrameLayout
-        android:id="@+id/frame_layout"
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="96dp"
         android:layout_marginBottom="80dp"/>
 
     <!-- Dolny pasek -->
@@ -56,20 +57,19 @@
         app:fabCradleRoundedCornerRadius="40dp"
         app:elevation="8dp">
 
-        <!-- BottomNavigationView wewnątrz paska -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:itemIconTint="#959595"
-            app:itemTextColor="#959595"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             app:itemIconSize="30dp"
             app:labelVisibilityMode="labeled"
             android:background="@android:color/transparent"
             app:menu="@menu/bottom_menu"/>
     </com.google.android.material.bottomappbar.BottomAppBar>
 
-    <!-- FloatingActionButton nad paskiem -->
+    <!-- Floating Action Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addparcel"
         android:layout_width="wrap_content"
@@ -84,4 +84,5 @@
         app:tint="@android:color/white"
         app:borderWidth="0dp"
         app:elevation="12dp" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

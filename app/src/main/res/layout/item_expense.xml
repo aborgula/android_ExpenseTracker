@@ -1,0 +1,52 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="@drawable/expense_item_bg"
+    android:gravity="center_vertical">
+
+    <!-- Ikona kategorii -->
+    <ImageView
+        android:id="@+id/img_category"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_other"
+        android:layout_marginEnd="12dp"
+     />
+
+    <!-- Środkowa część: tytuł i data -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Expense Title"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Today"
+            android:textSize="13sp"
+            android:textColor="#888888" />
+    </LinearLayout>
+
+    <!-- Kwota -->
+    <TextView
+        android:id="@+id/tv_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="$12.99"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#63B1A1" />
+</LinearLayout>

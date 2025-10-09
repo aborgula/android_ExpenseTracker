@@ -92,6 +92,43 @@
                 android:textColor="#000000" />
         </com.google.android.material.textfield.TextInputLayout>
 
+
+        <!-- CATEGORY -->
+        <TextView
+            android:id="@+id/text_category_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CATEGORY"
+            android:textStyle="bold"
+            android:textColor="#A1A1A1"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxStrokeColor="#63B1A1"
+           >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:clickable="true"
+                android:background="@drawable/edittext_border"
+                android:hint="Select category"
+                android:inputType="none"
+                android:textColorHint="#B0B0B0"
+                android:textColor="#000000"
+                android:drawableEnd="@drawable/ic_dropdown"
+                android:drawablePadding="8dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- DATE -->
         <TextView
             android:id="@+id/text_date_label"

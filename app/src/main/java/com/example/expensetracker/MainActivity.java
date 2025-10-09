@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,14 +29,29 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DatabaseReference dbRef;
+    private FloatingActionButton addParcelButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        addParcelButton = findViewById(R.id.addparcel);
         textUsername = findViewById(R.id.text_username);
         iconLogout = findViewById(R.id.icon_logout);
+
+        addParcelButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AddExpenseActivity.class);
+            startActivity(intent);
+        });
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new ExpensesFragment())
+                .commit();
+
+        Log.d("ww", "tu2");
+
 
         // Firebase
         mAuth = FirebaseAuth.getInstance();
