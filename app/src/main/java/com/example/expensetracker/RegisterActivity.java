@@ -2,6 +2,7 @@ package com.example.expensetracker;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -10,13 +11,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    private static final String TAG = "RegisterActivity";
+
     private TextView registerTitle, loginLink;
-    private TextInputEditText editEmail, editPassword;
+    private TextInputEditText editName, editEmail, editPassword;
     private MaterialButton buttonRegister;
     private FirebaseAuth mAuth;
+    private FirebaseDatabase database; // Realtime Database
+    private DatabaseReference dbRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,44 +36,72 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Firebase Auth
         mAuth = FirebaseAuth.getInstance();
+        // Realtime Database
+        database = FirebaseDatabase.getInstance();
+        dbRef = database.getReference();
 
         // Znajdź wszystkie widoki po ID
         registerTitle = findViewById(R.id.registerTitle);
+        editName = findViewById(R.id.editName);
         editEmail = findViewById(R.id.editEmail);
         editPassword = findViewById(R.id.editPassword);
         buttonRegister = findViewById(R.id.buttonRegister);
         loginLink = findViewById(R.id.loginLink);
 
         // Kliknięcie Log In przenosi do LoginActivity
-        loginLink.setOnClickListener(v -> {
-            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-        });
+        loginLink.setOnClickListener(v -> startActivity(new Intent(RegisterActivity.this, LoginActivity.class)));
 
         // Rejestracja użytkownika
         buttonRegister.setOnClickListener(v -> {
+            String name = editName.getText().toString().trim();
             String email = editEmail.getText().toString().trim();
             String password = editPassword.getText().toString().trim();
 
-            if(email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(RegisterActivity.this, "Please enter email and password", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Register button clicked: name=" + name + ", email=" + email);
+
+            // Walidacja pól
+            if(name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(RegisterActivity.this, "Please enter name, email and password", Toast.LENGTH_SHORT).show();
+                Log.w(TAG, "Validation failed: empty fields");
                 return;
             }
 
             if(password.length() < 6) {
                 Toast.makeText(RegisterActivity.this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                Log.w(TAG, "Validation failed: password too short");
                 return;
             }
 
-            // Tworzenie konta w Firebase
+            // Tworzenie konta w Firebase Auth
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if(task.isSuccessful()) {
-                            Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
-                            // Możesz przenieść od razu do MainActivity lub LoginActivity
-                            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-                            finish();
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if(user != null) {
+                                String uid = user.getUid();
+                                Log.d(TAG, "Firebase user created with UID: " + uid);
+
+                                // Tworzymy mapę danych użytkownika
+                                Map<String, Object> userData = new HashMap<>();
+                                userData.put("name", name);
+                                userData.put("email", email);
+
+                                // Zapis do Realtime Database
+                                dbRef.child("users").child(uid).setValue(userData)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Log.d(TAG, "User data successfully saved to Realtime Database for UID: " + uid);
+                                            Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
+                                            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                                            finish();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(RegisterActivity.this, "Failed to save user data: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                            Log.e(TAG, "Failed to save user data", e);
+                                        });
+                            }
                         } else {
                             Toast.makeText(RegisterActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            Log.e(TAG, "Registration failed", task.getException());
                         }
                     });
         });

@@ -34,6 +34,20 @@
                 android:textColor="#63B1A1"
                 android:layout_marginBottom="24dp"/>
 
+            <!-- Pole Name -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="Name">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- Pole e-mail -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
