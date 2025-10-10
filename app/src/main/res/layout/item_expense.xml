@@ -48,5 +48,5 @@
         android:text="$12.99"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:textColor="#63B1A1" />
+        android:textColor="#F44336" />
 </LinearLayout>

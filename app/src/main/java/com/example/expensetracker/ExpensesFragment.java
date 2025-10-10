@@ -1,10 +1,15 @@
 package com.example.expensetracker;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,6 +39,11 @@ public class ExpensesFragment extends Fragment {
     private RecyclerView recyclerView;
     private ExpenseAdapter adapter;
     private List<Expense> expenses = new ArrayList<>();
+    private String filterMinAmount = "";
+    private String filterMaxAmount = "";
+
+    // Kategorie
+    private List<String> selectedCategories = new ArrayList<>();
 
     private enum SortType {
         AMOUNT_ASC, AMOUNT_DESC,
@@ -41,7 +51,7 @@ public class ExpensesFragment extends Fragment {
         NAME_ASC, NAME_DESC
     }
 
-    private SortType currentSort = SortType.DATE_DESC; // domyślnie od najnowszego
+    private SortType currentSort = SortType.DATE_DESC;
 
 
     @Nullable
@@ -51,6 +61,7 @@ public class ExpensesFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycler_expenses);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         view.findViewById(R.id.btn_sort).setOnClickListener(v -> showSortOptions());
+        view.findViewById(R.id.btn_filter).setOnClickListener(v -> showFilterDialog());
         adapter = new ExpenseAdapter(getContext(), expenses);
         recyclerView.setAdapter(adapter);
 
@@ -62,7 +73,7 @@ public class ExpensesFragment extends Fragment {
             public boolean onMove(@NonNull RecyclerView recyclerView,
                                   @NonNull RecyclerView.ViewHolder viewHolder,
                                   @NonNull RecyclerView.ViewHolder target) {
-                return false; // nie obsługujemy drag & drop
+                return false;
             }
 
             @Override
@@ -74,18 +85,15 @@ public class ExpensesFragment extends Fragment {
                         .setTitle("Delete Expense")
                         .setMessage("Are you sure you want to delete this expense?")
                         .setPositiveButton("Yes", (dialog, which) -> {
-                            // Usuń lokalnie
                             expenses.remove(position);
                             adapter.notifyItemRemoved(position);
 
-                            // Usuń z Firebase
                             DatabaseReference databaseRef = FirebaseDatabase.getInstance()
                                     .getReference("expenses")
                                     .child(expense.getUserId())
-                                    .child(expense.getId()); // musisz mieć unikalny klucz w Expense
+                                    .child(expense.getId());
 
                             databaseRef.removeValue().addOnFailureListener(e -> {
-                                // Jeśli nie udało się usunąć z Firebase, przywróć element
                                 expenses.add(position, expense);
                                 adapter.notifyItemInserted(position);
                                 Toast.makeText(getContext(), "Failed to delete", Toast.LENGTH_SHORT).show();
@@ -97,7 +105,6 @@ public class ExpensesFragment extends Fragment {
                         .setCancelable(false)
                         .show();
             }
-
         };
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
@@ -110,7 +117,7 @@ public class ExpensesFragment extends Fragment {
 
         DatabaseReference databaseRef = FirebaseDatabase.getInstance()
                 .getReference("expenses")
-                .child(userId);  // ✅ Dodaj userId jako child!
+                .child(userId);
 
         databaseRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -124,9 +131,6 @@ public class ExpensesFragment extends Fragment {
                     }
                 }
                 adapter.notifyDataSetChanged();
-
-                // Debug - sprawdź ile wydatków znaleziono
-                Log.d("HomeFragment", "Loaded " + expenses.size() + " expenses");
             }
 
             @Override
@@ -166,13 +170,114 @@ public class ExpensesFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    private void showFilterDialog() {
+        // Inflate custom layout
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_filter, null);
+
+        EditText minAmount = dialogView.findViewById(R.id.minAmount);
+        EditText maxAmount = dialogView.findViewById(R.id.maxAmount);
+        Button btnResetAmount = dialogView.findViewById(R.id.btnResetAmount);
+        LinearLayout categoriesContainer = dialogView.findViewById(R.id.categoriesContainer);
+        Button btnSaveFilters = dialogView.findViewById(R.id.btnSaveFilters);
+        Button btnResetFilters = dialogView.findViewById(R.id.btnResetFilters);
+
+        // Lista kategorii
+        String[] categories = {"Food", "Transport", "Shopping", "Entertainment", "Health", "Bills", "Other"};
+        List<CheckBox> categoryCheckBoxes = new ArrayList<>();
+
+        // Dodaj checkboxy dynamicznie
+        for (String category : categories) {
+            CheckBox cb = new CheckBox(getContext());
+            cb.setText(category);
+            cb.setTextColor(Color.parseColor("#333333"));
+            // Przywróć zaznaczenie jeśli wcześniej wybrano
+            if (selectedCategories.contains(category)) cb.setChecked(true);
+            categoriesContainer.addView(cb);
+            categoryCheckBoxes.add(cb);
+        }
+
+        // Przywróć wartości kwot
+        minAmount.setText(filterMinAmount);
+        maxAmount.setText(filterMaxAmount);
+
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .create();
+
+        dialog.show();
+
+        // Metoda pomocnicza do stosowania wszystkich filtrów
+        Runnable applyFilters = () -> {
+            String minStr = minAmount.getText().toString().trim();
+            String maxStr = maxAmount.getText().toString().trim();
+            double min = minStr.isEmpty() ? Double.MIN_VALUE : Double.parseDouble(minStr);
+            double max = maxStr.isEmpty() ? Double.MAX_VALUE : Double.parseDouble(maxStr);
+
+            List<String> currentSelectedCategories = new ArrayList<>();
+            for (CheckBox cb : categoryCheckBoxes) {
+                if (cb.isChecked()) currentSelectedCategories.add(cb.getText().toString());
+            }
+
+            List<Expense> filtered = new ArrayList<>();
+            for (Expense e : expenses) {
+                boolean inCategory = currentSelectedCategories.isEmpty() || currentSelectedCategories.contains(e.getCategory());
+                boolean inAmount = e.getAmount() >= min && e.getAmount() <= max;
+                if (inCategory && inAmount) {
+                    filtered.add(e);
+                }
+            }
+            adapter.updateList(filtered);
+        };
+
+        btnResetAmount.setOnClickListener(v -> {
+            minAmount.setText("");
+            maxAmount.setText("");
+        });
+
+
+        // Obsługa Save (zachowuje wszystkie filtry)
+        btnSaveFilters.setOnClickListener(v -> {
+            // Zapisz aktualne wartości filtrów do zmiennych fragmentu
+            filterMinAmount = minAmount.getText().toString().trim();
+            filterMaxAmount = maxAmount.getText().toString().trim();
+
+            selectedCategories.clear();
+            for (CheckBox cb : categoryCheckBoxes) {
+                if (cb.isChecked()) selectedCategories.add(cb.getText().toString());
+            }
+
+            applyFilters.run();
+            Toast.makeText(getContext(), "Filters saved", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        // Obsługa Reset
+        btnResetFilters.setOnClickListener(v -> {
+            minAmount.setText("");
+            maxAmount.setText("");
+            for (CheckBox cb : categoryCheckBoxes) cb.setChecked(false);
+
+            // Wyczyść zapisane filtry
+            filterMinAmount = "";
+            filterMaxAmount = "";
+            selectedCategories.clear();
+
+            adapter.updateList(expenses); // przywraca pełną listę
+            Toast.makeText(getContext(), "Filters reset", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+
+
+
+
 
     private Date parseDate(String dateStr) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
             return sdf.parse(dateStr);
         } catch (Exception e) {
-            return new Date(0); // jeśli nie uda się sparsować, traktuj jako najstarsza data
+            return new Date(0);
         }
     }
 
@@ -198,5 +303,26 @@ public class ExpensesFragment extends Fragment {
                 .show();
     }
 
+    private void applyFilters(EditText minAmount, EditText maxAmount, List<CheckBox> categoryCheckBoxes) {
+        String minStr = minAmount.getText().toString().trim();
+        String maxStr = maxAmount.getText().toString().trim();
+        double min = minStr.isEmpty() ? Double.MIN_VALUE : Double.parseDouble(minStr);
+        double max = maxStr.isEmpty() ? Double.MAX_VALUE : Double.parseDouble(maxStr);
+
+        List<String> selectedCategories = new ArrayList<>();
+        for (CheckBox cb : categoryCheckBoxes) {
+            if (cb.isChecked()) selectedCategories.add(cb.getText().toString());
+        }
+
+        List<Expense> filtered = new ArrayList<>();
+        for (Expense e : expenses) {
+            boolean inCategory = selectedCategories.isEmpty() || selectedCategories.contains(e.getCategory());
+            boolean inAmount = e.getAmount() >= min && e.getAmount() <= max;
+            if (inCategory && inAmount) {
+                filtered.add(e);
+            }
+        }
+        adapter.updateList(filtered);
+    }
 
 }

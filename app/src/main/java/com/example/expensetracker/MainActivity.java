@@ -42,10 +42,57 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bottomNavigation = findViewById(R.id.bottomNavigationView);
+        textUsername = findViewById(R.id.text_username);
+        iconLogout = findViewById(R.id.icon_logout);
+        addParcelButton = findViewById(R.id.addparcel);
 
-        // Domyślnie pokazujemy ExpensesFragment
+        // Firebase
+        mAuth = FirebaseAuth.getInstance();
+        dbRef = FirebaseDatabase.getInstance().getReference();
+
+        // Pokaż domyślny fragment
         loadFragment(new ExpensesFragment());
 
+        // Pobranie imienia użytkownika
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            String uid = user.getUid();
+            dbRef.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        String name = snapshot.child("name").getValue(String.class);
+                        textUsername.setText(name != null ? name : "User");
+                        Log.d(TAG, "Loaded user name: " + name);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "Failed to read user data", error.toException());
+                }
+            });
+        }
+
+        // Wylogowanie po kliknięciu ikony
+        iconLogout.setOnClickListener(v -> {
+            AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Logout")
+                    .setMessage("Are you sure you want to logout?")
+                    .setPositiveButton("Yes", (dialogInterface, which) -> {
+                        mAuth.signOut();
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                        finish();
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+
+            // Zmieniamy kolor przycisku "Yes"
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                    .setTextColor(Color.parseColor("#63B1A1"));
+        });
+
+        // Obsługa BottomNavigation
         bottomNavigation.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
 
@@ -56,15 +103,18 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (selectedFragment != null) {
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, selectedFragment)
-                        .commit();
+                loadFragment(selectedFragment);
                 return true;
             }
             return false;
         });
+
+        // FloatingActionButton
+        addParcelButton.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, AddExpenseActivity.class));
+        });
     }
+
 
     private void loadFragment(Fragment fragment) {
         getSupportFragmentManager()

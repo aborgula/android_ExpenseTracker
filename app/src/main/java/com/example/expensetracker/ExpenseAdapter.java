@@ -12,15 +12,20 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder> {
 
     private Context context;
     private List<Expense> expenseList;
+    // Kwoty
+
+
 
     public ExpenseAdapter(Context context, List<Expense> expenseList) {
         this.context = context;
@@ -94,7 +99,10 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         }
     }
 
-
-
-
+    // W ExpenseAdapter
+    public void updateList(List<Expense> newList) {
+        this.expenseList = newList;
+        notifyDataSetChanged();
+        Log.d("ExpenseAdapter", "Expense list updated. Items count: " + newList.size());
+    }
 }
