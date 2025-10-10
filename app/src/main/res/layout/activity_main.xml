@@ -38,7 +38,7 @@
             android:focusable="true"/>
     </LinearLayout>
 
-    <!-- 🔹 Tutaj będą ładowane fragmenty -->
+    <!-- Kontener na fragmenty -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
@@ -46,28 +46,20 @@
         android:layout_marginTop="96dp"
         android:layout_marginBottom="80dp"/>
 
-    <!-- Dolny pasek -->
-    <com.google.android.material.bottomappbar.BottomAppBar
-        android:id="@+id/bottomAppBar"
+    <!-- Prosta dolna nawigacja BEZ BottomAppBar -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="80dp"
+        app:itemIconTint="@color/nav_icon_color"
+        android:paddingHorizontal="20dp"
         android:layout_gravity="bottom"
-        android:backgroundTint="@color/white"
-        app:fabCradleMargin="10dp"
-        app:fabCradleRoundedCornerRadius="40dp"
-        app:elevation="8dp">
-
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottomNavigationView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            app:itemIconSize="30dp"
-            app:labelVisibilityMode="labeled"
-            android:background="@android:color/transparent"
-            app:menu="@menu/bottom_menu"/>
-    </com.google.android.material.bottomappbar.BottomAppBar>
+        android:background="#CBF6E6"
+        android:elevation="8dp"
+        app:labelVisibilityMode="unlabeled"
+        app:itemIconSize="34dp"
+        app:menu="@menu/bottom_menu"
+        android:paddingTop="2dp"/>
 
     <!-- Floating Action Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -83,6 +75,8 @@
         app:maxImageSize="40dp"
         app:tint="@android:color/white"
         app:borderWidth="0dp"
-        app:elevation="12dp" />
+        app:elevation="12dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
