@@ -44,11 +44,34 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         Expense expense = expenseList.get(position);
         holder.name.setText(expense.getName());
         holder.amount.setText("$" + String.format(Locale.US, "%.2f", expense.getAmount()));
-        holder.icon.setImageResource(expense.getCategoryIcon());
 
-        // Sformatuj datę jako "Today", "Yesterday" lub konkretna data
+        // Automatyczne przypisanie obrazka w zależności od kategorii
+        switch (expense.getCategory()) {
+            case "Food":
+                holder.icon.setImageResource(R.drawable.ic_food);
+                break;
+            case "Transport":
+                holder.icon.setImageResource(R.drawable.ic_transport);
+                break;
+            case "Shopping":
+                holder.icon.setImageResource(R.drawable.ic_shopping);
+                break;
+            case "Entertainment":
+                holder.icon.setImageResource(R.drawable.ic_entertainment);
+                break;
+            case "Health":
+                holder.icon.setImageResource(R.drawable.ic_health);
+                break;
+            case "Bills":
+                holder.icon.setImageResource(R.drawable.ic_bills);
+                break;
+            default:
+                holder.icon.setImageResource(R.drawable.ic_other);
+        }
+
         holder.date.setText(formatDate(expense.getDate()));
     }
+
 
     @Override
     public int getItemCount() {
