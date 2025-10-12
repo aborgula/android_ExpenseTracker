@@ -1,4 +1,4 @@
-package com.example.expensetracker;
+package com.example.expensetracker.adapter;
 
 import android.content.Context;
 import android.util.Log;
@@ -7,25 +7,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.expensetracker.R;
+import com.example.expensetracker.model.Expense;
+
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder> {
 
     private Context context;
     private List<Expense> expenseList;
-    // Kwoty
-
-
 
     public ExpenseAdapter(Context context, List<Expense> expenseList) {
         this.context = context;
@@ -45,7 +42,6 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         holder.name.setText(expense.getName());
         holder.amount.setText("$" + String.format(Locale.US, "%.2f", expense.getAmount()));
 
-        // Automatyczne przypisanie obrazka w zależności od kategorii
         switch (expense.getCategory()) {
             case "Food":
                 holder.icon.setImageResource(R.drawable.ic_food);
@@ -97,11 +93,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
             Date date = sdf.parse(dateStr);
 
             Calendar cal = Calendar.getInstance();
-
-            // Dzisiaj
             Calendar todayCal = Calendar.getInstance();
-
-            // Wczoraj
             Calendar yesterdayCal = Calendar.getInstance();
             yesterdayCal.add(Calendar.DAY_OF_MONTH, -1);
 
@@ -122,7 +114,6 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         }
     }
 
-    // W ExpenseAdapter
     public void updateList(List<Expense> newList) {
         this.expenseList = newList;
         notifyDataSetChanged();

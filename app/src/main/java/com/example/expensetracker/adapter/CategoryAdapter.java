@@ -1,4 +1,4 @@
-package com.example.expensetracker;
+package com.example.expensetracker.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +7,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.expensetracker.R;
+import com.example.expensetracker.model.Category;
+
 import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
@@ -36,7 +40,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         Category category = categories.get(position);
         holder.categoryName.setText(category.getName());
 
-        // Przypisanie obrazka w zależności od nazwy kategorii
         switch (category.getName()) {
             case "Food":
                 holder.categoryIcon.setImageResource(R.drawable.ic_food);
@@ -63,7 +66,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
                 holder.categoryIcon.setImageResource(R.drawable.ic_other);
         }
 
-        // Obsługa kliknięcia
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onCategoryClick(category);
@@ -71,13 +73,11 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         });
     }
 
-
     @Override
     public int getItemCount() {
         return categories.size();
     }
 
-    // ViewHolder
     static class CategoryViewHolder extends RecyclerView.ViewHolder {
         ImageView categoryIcon;
         TextView categoryName;

@@ -1,21 +1,19 @@
-package com.example.expensetracker;
+package com.example.expensetracker.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.expensetracker.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +25,7 @@ public class RegisterActivity extends AppCompatActivity {
     private TextInputEditText editName, editEmail, editPassword;
     private MaterialButton buttonRegister;
     private FirebaseAuth mAuth;
-    private FirebaseDatabase database; // Realtime Database
+    private FirebaseDatabase database;
     private DatabaseReference dbRef;
 
     @Override
@@ -37,11 +35,9 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Firebase Auth
         mAuth = FirebaseAuth.getInstance();
-        // Realtime Database
         database = FirebaseDatabase.getInstance();
         dbRef = database.getReference();
 
-        // Znajdź wszystkie widoki po ID
         registerTitle = findViewById(R.id.registerTitle);
         editName = findViewById(R.id.editName);
         editEmail = findViewById(R.id.editEmail);
@@ -49,10 +45,8 @@ public class RegisterActivity extends AppCompatActivity {
         buttonRegister = findViewById(R.id.buttonRegister);
         loginLink = findViewById(R.id.loginLink);
 
-        // Kliknięcie Log In przenosi do LoginActivity
         loginLink.setOnClickListener(v -> startActivity(new Intent(RegisterActivity.this, LoginActivity.class)));
 
-        // Rejestracja użytkownika
         buttonRegister.setOnClickListener(v -> {
             String name = editName.getText().toString().trim();
             String email = editEmail.getText().toString().trim();
@@ -60,7 +54,6 @@ public class RegisterActivity extends AppCompatActivity {
 
             Log.d(TAG, "Register button clicked: name=" + name + ", email=" + email);
 
-            // Walidacja pól
             if(name.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(RegisterActivity.this, "Please enter name, email and password", Toast.LENGTH_SHORT).show();
                 Log.w(TAG, "Validation failed: empty fields");
@@ -73,7 +66,6 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
 
-            // Tworzenie konta w Firebase Auth
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if(task.isSuccessful()) {
@@ -82,12 +74,10 @@ public class RegisterActivity extends AppCompatActivity {
                                 String uid = user.getUid();
                                 Log.d(TAG, "Firebase user created with UID: " + uid);
 
-                                // Tworzymy mapę danych użytkownika
                                 Map<String, Object> userData = new HashMap<>();
                                 userData.put("name", name);
                                 userData.put("email", email);
 
-                                // Zapis do Realtime Database
                                 dbRef.child("users").child(uid).setValue(userData)
                                         .addOnSuccessListener(aVoid -> {
                                             Log.d(TAG, "User data successfully saved to Realtime Database for UID: " + uid);

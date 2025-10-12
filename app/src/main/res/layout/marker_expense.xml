@@ -1,55 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="8dp"
-    android:background="#9EFFFFFF"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
-
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:orientation="vertical"
+android:padding="8dp">
     <TextView
         android:id="@+id/tvMarkerDate"
         android:textColor="#000000"
         android:textSize="14sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
-
     <TextView
         android:id="@+id/tvMarkerAmount"
         android:textColor="#FF0000"
         android:textSize="14sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
-
     <TextView
         android:id="@+id/tvMarkerName"
         android:textColor="#538379"
         android:textSize="14sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
-</LinearLayout>-->
-
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:padding="8dp">
-
-<TextView
-    android:id="@+id/tvMarkerDate"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Date: 1/1/2024"
-    android:textColor="@android:color/white"
-    android:textSize="12sp"
-    android:textStyle="bold" />
-
-<TextView
-    android:id="@+id/tvMarkerAmount"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Amount: $0.00"
-    android:textColor="@android:color/white"
-    android:textSize="12sp" />
-
 </LinearLayout>

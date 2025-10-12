@@ -1,4 +1,4 @@
-package com.example.expensetracker;
+package com.example.expensetracker.ui.fragments;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -11,7 +11,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -19,15 +18,15 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.expensetracker.R;
+import com.example.expensetracker.adapter.ExpenseAdapter;
+import com.example.expensetracker.model.Expense;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.DocumentSnapshot;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,7 +41,6 @@ public class ExpensesFragment extends Fragment {
     private String filterMinAmount = "";
     private String filterMaxAmount = "";
 
-    // Kategorie
     private List<String> selectedCategories = new ArrayList<>();
 
     private enum SortType {
@@ -181,22 +179,18 @@ public class ExpensesFragment extends Fragment {
         Button btnSaveFilters = dialogView.findViewById(R.id.btnSaveFilters);
         Button btnResetFilters = dialogView.findViewById(R.id.btnResetFilters);
 
-        // Lista kategorii
         String[] categories = {"Food", "Transport", "Shopping", "Entertainment", "Health", "Bills", "Other"};
         List<CheckBox> categoryCheckBoxes = new ArrayList<>();
 
-        // Dodaj checkboxy dynamicznie
         for (String category : categories) {
             CheckBox cb = new CheckBox(getContext());
             cb.setText(category);
             cb.setTextColor(Color.parseColor("#333333"));
-            // Przywróć zaznaczenie jeśli wcześniej wybrano
             if (selectedCategories.contains(category)) cb.setChecked(true);
             categoriesContainer.addView(cb);
             categoryCheckBoxes.add(cb);
         }
 
-        // Przywróć wartości kwot
         minAmount.setText(filterMinAmount);
         maxAmount.setText(filterMaxAmount);
 
@@ -206,7 +200,6 @@ public class ExpensesFragment extends Fragment {
 
         dialog.show();
 
-        // Metoda pomocnicza do stosowania wszystkich filtrów
         Runnable applyFilters = () -> {
             String minStr = minAmount.getText().toString().trim();
             String maxStr = maxAmount.getText().toString().trim();
@@ -235,9 +228,7 @@ public class ExpensesFragment extends Fragment {
         });
 
 
-        // Obsługa Save (zachowuje wszystkie filtry)
         btnSaveFilters.setOnClickListener(v -> {
-            // Zapisz aktualne wartości filtrów do zmiennych fragmentu
             filterMinAmount = minAmount.getText().toString().trim();
             filterMaxAmount = maxAmount.getText().toString().trim();
 
@@ -251,13 +242,11 @@ public class ExpensesFragment extends Fragment {
             dialog.dismiss();
         });
 
-        // Obsługa Reset
         btnResetFilters.setOnClickListener(v -> {
             minAmount.setText("");
             maxAmount.setText("");
             for (CheckBox cb : categoryCheckBoxes) cb.setChecked(false);
 
-            // Wyczyść zapisane filtry
             filterMinAmount = "";
             filterMaxAmount = "";
             selectedCategories.clear();
@@ -266,11 +255,6 @@ public class ExpensesFragment extends Fragment {
             Toast.makeText(getContext(), "Filters reset", Toast.LENGTH_SHORT).show();
         });
     }
-
-
-
-
-
 
     private Date parseDate(String dateStr) {
         try {
@@ -302,27 +286,4 @@ public class ExpensesFragment extends Fragment {
                 })
                 .show();
     }
-
-    private void applyFilters(EditText minAmount, EditText maxAmount, List<CheckBox> categoryCheckBoxes) {
-        String minStr = minAmount.getText().toString().trim();
-        String maxStr = maxAmount.getText().toString().trim();
-        double min = minStr.isEmpty() ? Double.MIN_VALUE : Double.parseDouble(minStr);
-        double max = maxStr.isEmpty() ? Double.MAX_VALUE : Double.parseDouble(maxStr);
-
-        List<String> selectedCategories = new ArrayList<>();
-        for (CheckBox cb : categoryCheckBoxes) {
-            if (cb.isChecked()) selectedCategories.add(cb.getText().toString());
-        }
-
-        List<Expense> filtered = new ArrayList<>();
-        for (Expense e : expenses) {
-            boolean inCategory = selectedCategories.isEmpty() || selectedCategories.contains(e.getCategory());
-            boolean inAmount = e.getAmount() >= min && e.getAmount() <= max;
-            if (inCategory && inAmount) {
-                filtered.add(e);
-            }
-        }
-        adapter.updateList(filtered);
-    }
-
 }

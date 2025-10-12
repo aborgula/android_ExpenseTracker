@@ -1,7 +1,7 @@
-package com.example.expensetracker;
+package com.example.expensetracker.model;
 
 public class Expense {
-    private String id; // 🔹 unikalny klucz w Realtime Database
+    private String id;
     private String name;
     private String date;
     private double amount;
@@ -9,7 +9,6 @@ public class Expense {
     private int categoryIcon;
     private String userId;
 
-    // 🔸 konstruktor bezargumentowy wymagany przez Firebase
     public Expense() {}
 
     public Expense(String id, String name, String date, double amount, String category, int categoryIcon, String userId) {
@@ -22,7 +21,6 @@ public class Expense {
         this.userId = userId;
     }
 
-    // 🔹 getters i setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -30,6 +28,5 @@ public class Expense {
     public String getDate() { return date; }
     public double getAmount() { return amount; }
     public String getCategory() { return category; }
-    public int getCategoryIcon() { return categoryIcon; }
     public String getUserId() { return userId; }
 }

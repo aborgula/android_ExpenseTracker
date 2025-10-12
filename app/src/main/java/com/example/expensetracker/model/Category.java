@@ -1,4 +1,4 @@
-package com.example.expensetracker;
+package com.example.expensetracker.model;
 
 public class Category {
     private String name;

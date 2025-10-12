@@ -1,6 +1,5 @@
-package com.example.expensetracker;
+package com.example.expensetracker.ui.activities;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -13,6 +12,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.example.expensetracker.ui.fragments.ExpensesFragment;
+import com.example.expensetracker.R;
+import com.example.expensetracker.ui.fragments.StatsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -52,14 +54,11 @@ public class MainActivity extends AppCompatActivity {
         iconLogout = findViewById(R.id.icon_logout);
         addParcelButton = findViewById(R.id.addparcel);
 
-        // Firebase
         mAuth = FirebaseAuth.getInstance();
         dbRef = FirebaseDatabase.getInstance().getReference();
 
-        // Pokaż domyślny fragment
         loadFragment(new ExpensesFragment());
 
-        // Pobranie imienia użytkownika
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             String uid = user.getUid();
@@ -80,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        // Wylogowanie po kliknięciu ikony
         iconLogout.setOnClickListener(v -> {
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
                     .setTitle("Logout")
@@ -93,12 +91,10 @@ public class MainActivity extends AppCompatActivity {
                     .setNegativeButton("No", null)
                     .show();
 
-            // Zmieniamy kolor przycisku "Yes"
             dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                     .setTextColor(Color.parseColor("#63B1A1"));
         });
 
-        // Obsługa BottomNavigation
         bottomNavigation.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
 
@@ -115,12 +111,10 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        // FloatingActionButton
         addParcelButton.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, AddExpenseActivity.class));
         });
     }
-
 
     private void loadFragment(Fragment fragment) {
         getSupportFragmentManager()
@@ -128,6 +122,4 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.fragment_container, fragment)
                 .commit();
     }
-
-
 }
