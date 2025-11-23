@@ -12,7 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.example.expensetracker.ui.fragments.ExpensesFragment;
+import com.example.expensetracker.ui.fragments.ExpenseFragment;
 import com.example.expensetracker.R;
 import com.example.expensetracker.ui.fragments.StatsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         dbRef = FirebaseDatabase.getInstance().getReference();
 
-        loadFragment(new ExpensesFragment());
+        loadFragment(new ExpenseFragment());
 
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
             Fragment selectedFragment = null;
 
             if (item.getItemId() == R.id.nav_home) {
-                selectedFragment = new ExpensesFragment();
+                selectedFragment = new ExpenseFragment();
             } else if (item.getItemId() == R.id.nav_stats) {
                 selectedFragment = new StatsFragment();
             }
