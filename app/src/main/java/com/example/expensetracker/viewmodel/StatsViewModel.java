@@ -1,0 +1,161 @@
+package com.example.expensetracker.viewmodel;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+import com.example.expensetracker.model.Expense;
+import com.example.expensetracker.repository.ExpenseRepository;
+import com.example.expensetracker.service.ExpenseService;
+import com.example.expensetracker.service.ExpenseService.TimeFilter;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * ViewModel dla StatsFragment
+ * Używa ExpenseService zamiast oddzielnego ExpenseFilterService
+ */
+public class StatsViewModel extends ViewModel {
+
+    private final ExpenseRepository repository;
+    private final ExpenseService expenseService;
+
+    // Aktualny filtr czasowy
+    private final MutableLiveData<TimeFilter> currentTimeFilter = new MutableLiveData<>(TimeFilter.TODAY);
+
+    // Wszystkie wydatki z Firebase
+    private final LiveData<List<Expense>> allExpenses;
+
+    // Przefiltrowane wydatki (wynik)
+    private final MediatorLiveData<List<Expense>> filteredExpenses = new MediatorLiveData<>();
+
+    // Całkowita suma przefiltrowanych wydatków
+    private final MediatorLiveData<Float> totalAmount = new MediatorLiveData<>();
+
+    // Wydatki zgrupowane według dni (dla wykresu)
+    private final MediatorLiveData<Map<String, Float>> dailyGroupedExpenses = new MediatorLiveData<>();
+
+    // Wydatki zgrupowane według kategorii
+    private final MediatorLiveData<Map<String, Float>> categoryGroupedExpenses = new MediatorLiveData<>();
+
+    // Stan ładowania
+    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
+
+    /**
+     * Konstruktor domyślny - używany przez ViewModelProvider
+     */
+    public StatsViewModel() {
+        this.repository = new ExpenseRepository();
+        this.expenseService = new ExpenseService();
+        this.allExpenses = repository.observeExpenses();
+
+        setupObservers();
+    }
+
+    /**
+     * Konstruktor dla testów z dependency injection
+     */
+    public StatsViewModel(ExpenseRepository repository, ExpenseService expenseService) {
+        this.repository = repository;
+        this.expenseService = expenseService;
+        this.allExpenses = repository.observeExpenses();
+
+        setupObservers();
+    }
+
+    /**
+     * Konfiguruje obserwatory - kiedy zmieni się filtr lub dane, przefiltruj
+     */
+    private void setupObservers() {
+        // Obserwuj zmiany danych z Firebase
+        filteredExpenses.addSource(allExpenses, expenses -> {
+            if (expenses != null && currentTimeFilter.getValue() != null) {
+                applyFilters();
+            }
+        });
+
+        // Obserwuj zmiany filtru
+        filteredExpenses.addSource(currentTimeFilter, filter -> {
+            if (filter != null && allExpenses.getValue() != null) {
+                applyFilters();
+            }
+        });
+
+        // Obliczaj sumę przy każdej zmianie przefiltrowanych danych
+        totalAmount.addSource(filteredExpenses, expenses -> {
+            if (expenses != null) {
+                float total = expenseService.calculateTotal(expenses);
+                totalAmount.setValue(total);
+            }
+        });
+
+        // Grupuj wydatki według dni przy każdej zmianie
+        dailyGroupedExpenses.addSource(filteredExpenses, expenses -> {
+            if (expenses != null) {
+                Map<String, Float> grouped = expenseService.groupByDay(expenses);
+                dailyGroupedExpenses.setValue(grouped);
+            }
+        });
+
+        // Grupuj wydatki według kategorii przy każdej zmianie
+        categoryGroupedExpenses.addSource(filteredExpenses, expenses -> {
+            if (expenses != null) {
+                Map<String, Float> grouped = expenseService.groupByCategory(expenses);
+                categoryGroupedExpenses.setValue(grouped);
+            }
+        });
+    }
+
+    /**
+     * Aplikuje wszystkie aktywne filtry
+     */
+    private void applyFilters() {
+        List<Expense> expenses = allExpenses.getValue();
+        TimeFilter timeFilter = currentTimeFilter.getValue();
+
+        if (expenses != null && timeFilter != null) {
+            isLoading.setValue(true);
+
+            // Filtruj według czasu
+            List<Expense> filtered = expenseService.filterByTime(expenses, timeFilter);
+            filteredExpenses.setValue(filtered);
+
+            isLoading.setValue(false);
+        }
+    }
+
+    // ==================== PUBLIC METHODS ====================
+
+    /**
+     * Zmienia typ filtru czasowego
+     */
+    public void setTimeFilter(TimeFilter timeFilter) {
+        currentTimeFilter.setValue(timeFilter);
+    }
+
+
+    // ==================== GETTERS FOR LIVEDATA ====================
+
+    public LiveData<List<Expense>> getFilteredExpenses() {
+        return filteredExpenses;
+    }
+
+    public LiveData<Float> getTotalAmount() {
+        return totalAmount;
+    }
+
+
+    public LiveData<Map<String, Float>> getDailyGroupedExpenses() {
+        return dailyGroupedExpenses;
+    }
+
+
+
+    // ==================== LIFECYCLE ====================
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        repository.removeExpensesListener();
+    }
+}

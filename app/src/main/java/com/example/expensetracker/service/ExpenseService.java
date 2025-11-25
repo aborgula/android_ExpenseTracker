@@ -1,13 +1,30 @@
 package com.example.expensetracker.service;
 
+import android.util.Log;
 import com.example.expensetracker.model.Expense;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
+/**
+ * Kompleksowy serwis do obsługi wydatków
+ * Łączy sortowanie, filtrowanie, grupowanie i statystyki
+ */
 public class ExpenseService {
+
+    private static final String TAG = "ExpenseService";
+    private final SimpleDateFormat dateFormat;
+
+    public ExpenseService() {
+        this.dateFormat = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
+    }
+
 
     public enum SortType {
         AMOUNT_ASC, AMOUNT_DESC,
@@ -15,7 +32,16 @@ public class ExpenseService {
         NAME_ASC, NAME_DESC
     }
 
+    public enum TimeFilter {
+        TODAY, YESTERDAY, WEEK, MONTH, YEAR, ALL
+    }
+
+
     public List<Expense> sortExpenses(List<Expense> expenses, SortType sortType) {
+        if (expenses == null || expenses.isEmpty()) {
+            return new ArrayList<>();
+        }
+
         List<Expense> sorted = new ArrayList<>(expenses);
 
         switch (sortType) {
@@ -46,12 +72,16 @@ public class ExpenseService {
                                         String minAmount,
                                         String maxAmount,
                                         List<String> selectedCategories) {
-        double min = minAmount.isEmpty() ? Double.MIN_VALUE : Double.parseDouble(minAmount);
-        double max = maxAmount.isEmpty() ? Double.MAX_VALUE : Double.parseDouble(maxAmount);
+        if (expenses == null || expenses.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        double min = minAmount == null || minAmount.isEmpty() ? Double.MIN_VALUE : parseDouble(minAmount);
+        double max = maxAmount == null || maxAmount.isEmpty() ? Double.MAX_VALUE : parseDouble(maxAmount);
 
         List<Expense> filtered = new ArrayList<>();
         for (Expense e : expenses) {
-            boolean inCategory = selectedCategories.isEmpty() ||
+            boolean inCategory = selectedCategories == null || selectedCategories.isEmpty() ||
                     selectedCategories.contains(e.getCategory());
             boolean inAmount = e.getAmount() >= min && e.getAmount() <= max;
 
@@ -63,12 +93,183 @@ public class ExpenseService {
         return filtered;
     }
 
+
+
+
+    /**
+     * Filtruje wydatki według okresu czasu
+     * NOWA METODA - połączenie z logiką ze StatsFragment
+     */
+    public List<Expense> filterByTime(List<Expense> expenses, TimeFilter timeFilter) {
+        if (expenses == null || expenses.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Expense> filtered = new ArrayList<>();
+        Calendar today = Calendar.getInstance();
+        normalizeDate(today);
+
+        for (Expense expense : expenses) {
+            try {
+                Date parsedDate = dateFormat.parse(expense.getDate());
+                if (parsedDate == null) continue;
+
+                Calendar expenseCal = Calendar.getInstance();
+                expenseCal.setTime(parsedDate);
+                normalizeDate(expenseCal);
+
+                long diffDays = calculateDaysDifference(today, expenseCal);
+
+                if (matchesTimeFilter(diffDays, timeFilter)) {
+                    filtered.add(expense);
+                }
+
+            } catch (ParseException ex) {
+                Log.e(TAG, "Date parse error for " + expense.getDate(), ex);
+            }
+        }
+
+        Log.d(TAG, "Time filter: " + timeFilter + " → " + filtered.size() + " results");
+        return filtered;
+    }
+
+
+
+    /**
+     * Sprawdza czy różnica dni pasuje do filtru czasowego
+     */
+    private boolean matchesTimeFilter(long diffDays, TimeFilter timeFilter) {
+        switch (timeFilter) {
+            case TODAY:
+                return diffDays == 0;
+            case YESTERDAY:
+                return diffDays == 1;
+            case WEEK:
+                return diffDays <= 7 && diffDays >= 0;
+            case MONTH:
+                return diffDays <= 30 && diffDays >= 0;
+            case YEAR:
+                return diffDays <= 365 && diffDays >= 0;
+            case ALL:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    // ==================== GRUPOWANIE ====================
+
+    /**
+     * Grupuje wydatki według dnia (dla wykresu)
+     */
+    public Map<String, Float> groupByDay(List<Expense> expenses) {
+        Map<String, Float> dailySums = new TreeMap<>();
+
+        if (expenses == null || expenses.isEmpty()) {
+            return dailySums;
+        }
+
+        for (Expense expense : expenses) {
+            try {
+                Date date = dateFormat.parse(expense.getDate());
+                if (date == null) continue;
+
+                String dayKey = dateFormat.format(date);
+                float amount = (float) expense.getAmount();
+
+                dailySums.put(dayKey, dailySums.getOrDefault(dayKey, 0f) + amount);
+            } catch (ParseException ex) {
+                Log.e(TAG, "Date parse error for " + expense.getDate(), ex);
+            }
+        }
+
+        return dailySums;
+    }
+
+    /**
+     * Grupuje wydatki według kategorii
+     */
+    public Map<String, Float> groupByCategory(List<Expense> expenses) {
+        Map<String, Float> categorySums = new TreeMap<>();
+
+        if (expenses == null || expenses.isEmpty()) {
+            return categorySums;
+        }
+
+        for (Expense expense : expenses) {
+            String category = expense.getCategory();
+            if (category == null || category.isEmpty()) {
+                category = "Uncategorized";
+            }
+
+            float amount = (float) expense.getAmount();
+            categorySums.put(category, categorySums.getOrDefault(category, 0f) + amount);
+        }
+
+        return categorySums;
+    }
+
+
+    // ==================== STATYSTYKI ====================
+
+    /**
+     * Oblicza całkowitą sumę wydatków
+     */
+    public float calculateTotal(List<Expense> expenses) {
+        if (expenses == null || expenses.isEmpty()) {
+            return 0f;
+        }
+
+        float total = 0f;
+        for (Expense expense : expenses) {
+            total += expense.getAmount();
+        }
+        return total;
+    }
+
+
+    // ==================== POMOCNICZE METODY ====================
+
+    /**
+     * Parsuje datę ze stringa
+     */
     private Date parseDate(String dateStr) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy", Locale.getDefault());
-            return sdf.parse(dateStr);
+            Date date = dateFormat.parse(dateStr);
+            return date != null ? date : new Date(0);
         } catch (Exception e) {
+            Log.e(TAG, "Failed to parse date: " + dateStr, e);
             return new Date(0);
         }
+    }
+
+    /**
+     * Bezpieczne parsowanie double
+     */
+    private double parseDouble(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Failed to parse double: " + value, e);
+            return 0.0;
+        }
+    }
+
+    /**
+     * Oblicza różnicę w dniach między dwiema datami
+     */
+    private long calculateDaysDifference(Calendar today, Calendar expenseDate) {
+        long diffMillis = today.getTimeInMillis() - expenseDate.getTimeInMillis();
+        return diffMillis / (1000 * 60 * 60 * 24);
+    }
+
+    /**
+     * Normalizuje datę (zeruje godziny/minuty/sekundy)
+     */
+    private void normalizeDate(Calendar cal) {
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
     }
 }
