@@ -11,10 +11,7 @@ import com.example.expensetracker.service.ExpenseService.TimeFilter;
 import java.util.List;
 import java.util.Map;
 
-/**
- * ViewModel dla StatsFragment
- * Używa ExpenseService zamiast oddzielnego ExpenseFilterService
- */
+
 public class StatsViewModel extends ViewModel {
 
     private final ExpenseRepository repository;
@@ -41,16 +38,6 @@ public class StatsViewModel extends ViewModel {
     // Stan ładowania
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
 
-    /**
-     * Konstruktor domyślny - używany przez ViewModelProvider
-     */
-    public StatsViewModel() {
-        this.repository = new ExpenseRepository();
-        this.expenseService = new ExpenseService();
-        this.allExpenses = repository.observeExpenses();
-
-        setupObservers();
-    }
 
     /**
      * Konstruktor dla testów z dependency injection
@@ -113,13 +100,15 @@ public class StatsViewModel extends ViewModel {
         List<Expense> expenses = allExpenses.getValue();
         TimeFilter timeFilter = currentTimeFilter.getValue();
 
+        System.out.println("DEBUG: applyFilters called");
+        System.out.println("DEBUG: expenses = " + (expenses != null ? expenses.size() : "null"));
+        System.out.println("DEBUG: timeFilter = " + timeFilter);
+
         if (expenses != null && timeFilter != null) {
             isLoading.setValue(true);
-
-            // Filtruj według czasu
             List<Expense> filtered = expenseService.filterByTime(expenses, timeFilter);
+            System.out.println("DEBUG: filtered size = " + filtered.size());
             filteredExpenses.setValue(filtered);
-
             isLoading.setValue(false);
         }
     }
