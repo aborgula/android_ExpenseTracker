@@ -9,6 +9,8 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
+// ========== TESTY JEDNOSTKOWE LOGIKI BIZNESOWEJ ==========
+
 public class ExpenseServiceTest {
 
     private ExpenseService service;
@@ -43,6 +45,7 @@ public class ExpenseServiceTest {
 
     // ========== TESTY SORTOWANIA ==========
 
+    // Test 1 - test sortowania rosnąco
     @Test
     public void sortExpenses_byAmountAscending_returnsCorrectOrder() {
 
@@ -58,7 +61,7 @@ public class ExpenseServiceTest {
         assertEquals(150.0, sorted.get(4).getAmount(), 0.01);
     }
 
-
+    // Test 2 - test sortowania malejąco
     @Test
     public void sortExpenses_byDateDescending_returnsCorrectOrder() {
 
@@ -74,6 +77,7 @@ public class ExpenseServiceTest {
         assertEquals("Groceries", sorted.get(4).getName());  // 15/11
     }
 
+    // Test 3 - test sortowania alfabetycznie
     @Test
     public void sortExpenses_byNameAscending_returnsCorrectOrder() {
 
@@ -89,6 +93,7 @@ public class ExpenseServiceTest {
         assertEquals("Restaurant", sorted.get(4).getName());
     }
 
+    // Test 4 - test sprawdzający czy nie ma błędu, gdy lista jest pusta
     @Test
     public void sortExpenses_withEmptyList_returnsEmptyList() {
 
@@ -102,6 +107,8 @@ public class ExpenseServiceTest {
 
 
     // ========== TESTY FILTROWANIA ==========
+
+    // Test 5 - test sprawdzający filtrowanie przy kwocie minimalnej
     @Test
     public void filterExpenses_byMinAmountOnly_returnsExpensesAboveMin() {
         List<Expense> filtered = service.filterExpenses(testExpenses,
@@ -113,7 +120,7 @@ public class ExpenseServiceTest {
         assertTrue(filtered.stream().allMatch(e -> e.getAmount() >= 50));
     }
 
-
+    // Test 6 - test sprawdzający filtrowanie po jednej kategorii
     @Test
     public void filterExpenses_bySingleCategory_returnsOnlyThatCategory() {
 
@@ -127,6 +134,7 @@ public class ExpenseServiceTest {
         assertTrue(filtered.stream().allMatch(e -> e.getCategory().equals("Food")));
     }
 
+    // Test 7 - test sprawdzający filtrowanie po kilku kategoriach
     @Test
     public void filterExpenses_byMultipleCategories_returnsAllMatchingCategories() {
 
@@ -142,6 +150,7 @@ public class ExpenseServiceTest {
         assertTrue(filtered.stream().anyMatch(e -> e.getName().equals("Restaurant")));
     }
 
+    // Test 8 - test sprawdzający filtrowanie kwocie i kategoriach
     @Test
     public void filterExpenses_byCategoryAndAmount_returnsIntersection() {
 
@@ -156,6 +165,7 @@ public class ExpenseServiceTest {
                 e.getCategory().equals("Food") && e.getAmount() >= 50 && e.getAmount() <= 200));
     }
 
+    // Test 9 - test sprawdzający czy przy braku filtrów zwracane są wszystkie wydatki
     @Test
     public void filterExpenses_withNoFilters_returnsAllExpenses() {
 
@@ -168,6 +178,7 @@ public class ExpenseServiceTest {
         assertEquals(testExpenses.size(), filtered.size());
     }
 
+    // Test 10 - test sprawdzający czy przy żadnym wydatku pasującym zwracana jest pusta lista
     @Test
     public void filterExpenses_withNoMatches_returnsEmptyList() {
 
@@ -181,6 +192,8 @@ public class ExpenseServiceTest {
     }
 
     // ========== TESTY EDGE CASES ==========
+
+    // Test 11 - test sprawdzający obsługiwanie wydatków z kwotą 0
     @Test
     public void filterExpenses_withZeroAmount_handlesCorrectly() {
 
@@ -200,6 +213,7 @@ public class ExpenseServiceTest {
         assertEquals("Free item", filtered.get(0).getName());
     }
 
+    // Test 12 - test sprawdzający czy sortowanie nie zmienia ani nie usuwa wydatków o tej samej kwocie
     @Test
     public void sortExpenses_withSameAmounts_maintainsStableOrder() {
 

@@ -4,10 +4,11 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+// ========== TESTY JEDNOSTKOWE MODELU EXPENSE ==========
+
 public class ExpenseTest {
 
-    // ===================== Test 1 =====================
-    // Sprawdza konstruktor i getter-y
+    // Test 13 - test sprawdzający konstruktor i gettery
     @Test
     public void givenExpenseData_whenCreated_thenGettersReturnCorrectValues() {
         // Given
@@ -31,8 +32,8 @@ public class ExpenseTest {
         assertEquals(userId, expense.getUserId());
     }
 
-    // ===================== Test 2 =====================
-    // Sprawdza setter id
+
+    // Test 14 - test sprawdzający setter id
     @Test
     public void givenNewId_whenSetId_thenIdIsUpdated() {
         // Given
@@ -46,8 +47,8 @@ public class ExpenseTest {
         assertEquals(newId, expense.getId());
     }
 
-    // ===================== Test 3 =====================
-    // Sprawdza, czy kwota wydatku jest poprawnie ustawiana i zwracana
+
+    // Test 15 - test sprawdzający ustawianie i zwracanie kwoty wydatku
     @Test
     public void givenExpenseAmount_whenGetAmount_thenReturnCorrectValue() {
         // Given
@@ -61,8 +62,7 @@ public class ExpenseTest {
         assertEquals(amount, expense.getAmount(), 0.0);
     }
 
-    // ===================== Test 4 =====================
-    // Sprawdza zachowanie przy pustych polach
+    // Test 16 - test sprawdzający czy nie ma błędu przy pustych polach
     @Test
     public void givenEmptyFields_whenCreated_thenGettersReturnExpectedDefaults() {
         // Given & When

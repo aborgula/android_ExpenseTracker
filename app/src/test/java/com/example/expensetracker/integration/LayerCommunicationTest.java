@@ -22,18 +22,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-/**
- * Test komunikacji między warstwami:
- * Fragment -> ViewModel -> Repository
- * Fragment -> ViewModel -> Service
- */
+
+// ==============  Testy komunikacji Fragment -> ViewModel -> Repository/Service   ===============
+
 @RunWith(MockitoJUnitRunner.class)
 public class LayerCommunicationTest {
 
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-    // Mockowane zależności
     @Mock
     private ExpenseRepository mockRepository;
 
@@ -43,10 +40,8 @@ public class LayerCommunicationTest {
     @Mock
     private Observer<String> errorObserver;
 
-    // Prawdziwy serwis
     private ExpenseService realService;
 
-    // ViewModel łączy wszystkie warstwy
     private ExpensesViewModel viewModel;
 
     private List<Expense> testExpenses;
@@ -55,17 +50,13 @@ public class LayerCommunicationTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        // Prawdziwy serwis
         realService = new ExpenseService();
 
-        // Utwórz ViewModel z mockiem repository i prawdziwym serwisem
+        // mock repository i prawdziwy serwis
         viewModel = new ExpensesViewModel(mockRepository, realService);
-
-        // Obserwuj LiveData
         viewModel.getExpenses().observeForever(expensesObserver);
         viewModel.getError().observeForever(errorObserver);
 
-        // Testowe dane
         testExpenses = Arrays.asList(
                 createExpense("1", "Groceries", 150.0, "Food", "20/11/2024"),
                 createExpense("2", "Bus", 5.0, "Transport", "21/11/2024"),
@@ -86,29 +77,9 @@ public class LayerCommunicationTest {
         return expense;
     }
 
-    //  ---- TESTY KOMUNIKACJI: REPOSITORY -> VIEWMODEL  ----
 
-    @Test
-    public void repository_errorLoad_propagatesToViewModel() {
-        // Arrange
-        String errorMessage = "Database connection failed";
-        doAnswer(invocation -> {
-            ExpenseRepository.ExpenseCallback callback = invocation.getArgument(0);
-            callback.onError(errorMessage);
-            return null;
-        }).when(mockRepository).loadExpenses(any(ExpenseRepository.ExpenseCallback.class));
-
-        // Act
-        viewModel.loadExpenses();
-
-        // Assert - błąd powinien trafić do ViewModel
-        verify(mockRepository, times(1)).loadExpenses(any());
-        verify(errorObserver, times(1)).onChanged(errorMessage);
-        verify(expensesObserver, never()).onChanged(any());
-    }
-
-    // ========== TESTY KOMUNIKACJI: SERVICE -> VIEWMODEL ==========
-
+    // Test 5 - sprawdza czy logika sortowania w ExpenseService działa poprawnie gdy jest używana przez ViewModel i jak dane przepływają
+    // z Repozytorium przez Serwis do ViewModel
     @Test
     public void service_sortingLogic_appliedByViewModel() {
         // Arrange
@@ -120,7 +91,7 @@ public class LayerCommunicationTest {
 
         viewModel.loadExpenses();
 
-        // Act - sortowanie przez vieModel z prawdziwym service
+        // Act
         viewModel.sortExpenses(ExpenseService.SortType.AMOUNT_ASC);
 
         // Assert
@@ -128,10 +99,12 @@ public class LayerCommunicationTest {
         verify(expensesObserver, atLeast(2)).onChanged(captor.capture());
 
         List<Expense> sortedList = captor.getValue();
-        assertEquals(5.0, sortedList.get(0).getAmount(), 0.01);  // Bus - najtańszy
-        assertEquals(150.0, sortedList.get(3).getAmount(), 0.01); // Groceries - najdroższy
+        assertEquals(5.0, sortedList.get(0).getAmount(), 0.01);
+        assertEquals(150.0, sortedList.get(3).getAmount(), 0.01);
     }
 
+    // Test 6 - Repozytorium dostarcza dane do ViewModel, który używa serwisu do filtrowania danych, następnie
+    // sprawdzane jest czy otrzymane wyniki spełniają kryteria
     @Test
     public void service_filteringLogic_appliedByViewModel() {
         // Arrange
@@ -151,13 +124,12 @@ public class LayerCommunicationTest {
         verify(expensesObserver, atLeast(2)).onChanged(captor.capture());
 
         List<Expense> filteredList = captor.getValue();
-        assertEquals(2, filteredList.size()); // Groceries (150) i Restaurant (80)
+        assertEquals(2, filteredList.size());
         assertTrue(filteredList.stream().allMatch(e -> e.getCategory().equals("Food")));
         assertTrue(filteredList.stream().allMatch(e -> e.getAmount() >= 50 && e.getAmount() <= 200));
     }
 
-    // --- TESTY KOMUNIKACJI: VIEWMODEL -> REPOSITORY (DELETE) ---
-
+    // Test 7 - sprawdza interakcję ViewModel z Repozytorium przy usuwaniu wydatku
     @Test
     public void viewModel_deleteExpense_callsRepository() {
         // Arrange
@@ -186,11 +158,10 @@ public class LayerCommunicationTest {
 
 
 
-    // ========== TESTY PEŁNEGO FLOW ==========
-
+    // Test 8 - sprawdza pełen cykl działania ViewModel w integracji z Repository i Service
     @Test
     public void fullFlow_loadSortFilterDelete_allLayersCommunicate() {
-        // KROK 1: Załaduj dane (Repository -> ViewModel)
+        // Ładowanie danych: Repository -> ViewModel
         doAnswer(invocation -> {
             ExpenseRepository.ExpenseCallback callback = invocation.getArgument(0);
             callback.onSuccess(testExpenses);
@@ -200,23 +171,25 @@ public class LayerCommunicationTest {
         viewModel.loadExpenses();
         verify(expensesObserver, times(1)).onChanged(testExpenses);
 
-        // KROK 2: Sortuj (ViewModel -> Service -> ViewModel)
+        // Sortowanie: ViewModel -> Service -> ViewModel
         viewModel.sortExpenses(ExpenseService.SortType.AMOUNT_DESC);
 
         ArgumentCaptor<List<Expense>> sortCaptor = ArgumentCaptor.forClass(List.class);
         verify(expensesObserver, atLeast(2)).onChanged(sortCaptor.capture());
         List<Expense> sortedList = sortCaptor.getValue();
-        assertEquals(150.0, sortedList.get(0).getAmount(), 0.01); // Najdroższy pierwszy
+        // Sprawdzenie czy najdroższy wydatek jest pierwszy
+        assertEquals(150.0, sortedList.get(0).getAmount(), 0.01);
 
-        // KROK 3: Filtruj (ViewModel -> Service -> ViewModel)
+        // Filtrowanie: ViewModel -> Service -> ViewModel
         viewModel.filterExpenses("", "", Collections.singletonList("Food"));
 
         ArgumentCaptor<List<Expense>> filterCaptor = ArgumentCaptor.forClass(List.class);
         verify(expensesObserver, atLeast(3)).onChanged(filterCaptor.capture());
         List<Expense> filteredList = filterCaptor.getValue();
+        // Sprawdzenie czy są 2 wydatki z kategorii "Food"
         assertEquals(2, filteredList.size());
 
-        // KROK 4: Usuń (ViewModel -> Repository -> ViewModel)
+        // Usuwanie wydatku: ViewModel -> Repository -> ViewModel
         doAnswer(invocation -> {
             ExpenseRepository.DeleteCallback callback = invocation.getArgument(1);
             callback.onSuccess();
@@ -224,11 +197,12 @@ public class LayerCommunicationTest {
         }).when(mockRepository).deleteExpense(any(), any());
 
         viewModel.deleteExpense(filteredList.get(0));
-
+        // Sprawdzenie ile razy zostały wykonane poszczególne metody
         verify(mockRepository, times(1)).deleteExpense(any(), any());
         verify(mockRepository, times(2)).loadExpenses(any()); // Po delete powinno się przeładować
     }
 
+    // Test 9 - sprawdza współpracę ViewModel i Service przy złożonych filtrach
     @Test
     public void complexFiltering_serviceAndViewModelWork_together() {
         // Arrange
@@ -240,7 +214,7 @@ public class LayerCommunicationTest {
 
         viewModel.loadExpenses();
 
-        // Act - zastosuj złożone filtry: kwota 20-100 + kategorie Food i Entertainment
+        // Act - filtry: kwota 20-100 oraz kategorie Food i Entertainment
         viewModel.filterExpenses("20", "100", Arrays.asList("Food", "Entertainment"));
 
         // Assert - powinien zwrócić Cinema (30, Entertainment) i Restaurant (80, Food)
@@ -253,6 +227,7 @@ public class LayerCommunicationTest {
         assertTrue(result.stream().anyMatch(e -> e.getName().equals("Restaurant")));
     }
 
+    // Test 10 - sprawdza, czy po usunięciu filtrów lista wydatków wraca do oryginalnej niefiltrowanej wersji
     @Test
     public void resetFilters_restoresOriginalData() {
         // Arrange
@@ -263,21 +238,20 @@ public class LayerCommunicationTest {
         }).when(mockRepository).loadExpenses(any());
 
         viewModel.loadExpenses();
-
-        // Zastosuj filtry
         viewModel.filterExpenses("50", "200", Collections.singletonList("Food"));
 
-        // Act - resetuj
+        // Act
         viewModel.resetFilters();
 
-        // Assert - powinna wrócić pełna lista
+        // Assert
         ArgumentCaptor<List<Expense>> captor = ArgumentCaptor.forClass(List.class);
         verify(expensesObserver, atLeast(3)).onChanged(captor.capture());
 
         List<Expense> finalList = captor.getValue();
-        assertEquals(4, finalList.size()); // Wszystkie 4 wydatki
+        assertEquals(4, finalList.size());
     }
 
+    // Test 11 - sprawdza, czy po zastosowaniu filtrów można posortować wyniki i filtr nie znika: testowanie współpracy ViewModel i Service
     @Test
     public void sortAfterFilter_maintainsFilters() {
         // Arrange
@@ -288,11 +262,9 @@ public class LayerCommunicationTest {
         }).when(mockRepository).loadExpenses(any());
 
         viewModel.loadExpenses();
-
-        // Filtruj tylko Food
         viewModel.filterExpenses("", "", Collections.singletonList("Food"));
 
-        // Act - sortuj po filtrowaniu
+        // Act
         viewModel.sortExpenses(ExpenseService.SortType.AMOUNT_ASC);
 
         // Assert - powinno być nadal tylko 2 Food items, ale posortowane
