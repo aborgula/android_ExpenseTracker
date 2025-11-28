@@ -12,10 +12,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * Kompleksowy serwis do obsługi wydatków
- * Łączy sortowanie, filtrowanie, grupowanie i statystyki
- */
+
 public class ExpenseService {
 
     private static final String TAG = "ExpenseService";
@@ -94,12 +91,6 @@ public class ExpenseService {
     }
 
 
-
-
-    /**
-     * Filtruje wydatki według okresu czasu
-     * NOWA METODA - połączenie z logiką ze StatsFragment
-     */
     public List<Expense> filterByTime(List<Expense> expenses, TimeFilter timeFilter) {
         if (expenses == null || expenses.isEmpty()) {
             return new ArrayList<>();
@@ -134,10 +125,6 @@ public class ExpenseService {
     }
 
 
-
-    /**
-     * Sprawdza czy różnica dni pasuje do filtru czasowego
-     */
     private boolean matchesTimeFilter(long diffDays, TimeFilter timeFilter) {
         switch (timeFilter) {
             case TODAY:
@@ -157,11 +144,7 @@ public class ExpenseService {
         }
     }
 
-    // ==================== GRUPOWANIE ====================
 
-    /**
-     * Grupuje wydatki według dnia (dla wykresu)
-     */
     public Map<String, Float> groupByDay(List<Expense> expenses) {
         Map<String, Float> dailySums = new TreeMap<>();
 
@@ -186,9 +169,7 @@ public class ExpenseService {
         return dailySums;
     }
 
-    /**
-     * Grupuje wydatki według kategorii
-     */
+
     public Map<String, Float> groupByCategory(List<Expense> expenses) {
         Map<String, Float> categorySums = new TreeMap<>();
 
@@ -210,11 +191,7 @@ public class ExpenseService {
     }
 
 
-    // ==================== STATYSTYKI ====================
 
-    /**
-     * Oblicza całkowitą sumę wydatków
-     */
     public float calculateTotal(List<Expense> expenses) {
         if (expenses == null || expenses.isEmpty()) {
             return 0f;
@@ -228,11 +205,6 @@ public class ExpenseService {
     }
 
 
-    // ==================== POMOCNICZE METODY ====================
-
-    /**
-     * Parsuje datę ze stringa
-     */
     private Date parseDate(String dateStr) {
         try {
             Date date = dateFormat.parse(dateStr);
@@ -243,9 +215,6 @@ public class ExpenseService {
         }
     }
 
-    /**
-     * Bezpieczne parsowanie double
-     */
     private double parseDouble(String value) {
         try {
             return Double.parseDouble(value);
@@ -255,17 +224,13 @@ public class ExpenseService {
         }
     }
 
-    /**
-     * Oblicza różnicę w dniach między dwiema datami
-     */
+
     private long calculateDaysDifference(Calendar today, Calendar expenseDate) {
         long diffMillis = today.getTimeInMillis() - expenseDate.getTimeInMillis();
         return diffMillis / (1000 * 60 * 60 * 24);
     }
 
-    /**
-     * Normalizuje datę (zeruje godziny/minuty/sekundy)
-     */
+
     private void normalizeDate(Calendar cal) {
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
