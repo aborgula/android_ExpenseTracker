@@ -3,12 +3,10 @@ package com.example.expensetracker.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
 import com.example.expensetracker.model.Expense;
 import com.example.expensetracker.repository.ExpenseRepository;
 import com.example.expensetracker.service.ExpenseService;
 import com.example.expensetracker.service.ExpenseService.SortType;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +45,6 @@ public class ExpensesViewModel extends ViewModel {
                 allExpenses = new ArrayList<>(expenses);
                 currentFilteredExpenses = new ArrayList<>(expenses);
 
-                // Jeśli są aktywne filtry, zastosuj je ponownie
                 if (!currentMinAmount.isEmpty() || !currentMaxAmount.isEmpty() || !currentCategories.isEmpty()) {
                     applyCurrentFilters();
                 } else {
@@ -66,7 +63,6 @@ public class ExpensesViewModel extends ViewModel {
         repository.deleteExpense(expense, new ExpenseRepository.DeleteCallback() {
             @Override
             public void onSuccess() {
-                // Po udanym usunięciu, przeładuj listę
                 loadExpenses();
             }
 
@@ -84,7 +80,6 @@ public class ExpensesViewModel extends ViewModel {
     }
 
     public void filterExpenses(String minAmount, String maxAmount, List<String> categories) {
-        // Zapisz parametry filtrów
         currentMinAmount = minAmount;
         currentMaxAmount = maxAmount;
         currentCategories = new ArrayList<>(categories);

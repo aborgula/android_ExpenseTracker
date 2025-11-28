@@ -3,7 +3,6 @@ package com.example.expensetracker.ui.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
-
 import com.example.expensetracker.R;
 import com.google.android.material.button.MaterialButton;
 import android.widget.TextView;

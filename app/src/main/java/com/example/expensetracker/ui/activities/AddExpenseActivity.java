@@ -10,7 +10,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.expensetracker.R;
 import com.example.expensetracker.adapter.CategoryAdapter;
 import com.example.expensetracker.model.Category;
@@ -87,8 +86,6 @@ public class AddExpenseActivity extends AppCompatActivity {
                 }
             }
         });
-
-
     }
 
     private void showDatePickerDialog() {

@@ -1,7 +1,6 @@
 package com.example.expensetracker.model;
 
 import static org.junit.Assert.*;
-
 import org.junit.Test;
 
 // ========== TESTY JEDNOSTKOWE MODELU EXPENSE ==========

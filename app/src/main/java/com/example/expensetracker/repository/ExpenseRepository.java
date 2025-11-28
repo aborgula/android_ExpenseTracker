@@ -27,15 +27,11 @@ public class ExpenseRepository {
         this.auth = FirebaseAuth.getInstance();
     }
 
-    // Konstruktor do testów
     public ExpenseRepository(DatabaseReference databaseRef, FirebaseAuth auth) {
         this.databaseRef = databaseRef;
         this.auth = auth;
     }
 
-    /**
-     * Istniejąca metoda z callback - zachowana dla kompatybilności wstecznej
-     */
     public void loadExpenses(ExpenseCallback callback) {
         String userId = auth.getCurrentUser().getUid();
 
@@ -60,10 +56,7 @@ public class ExpenseRepository {
         });
     }
 
-    /**
-     * NOWA METODA: Pobiera wydatki jako LiveData z zarządzaniem listenerem
-     * Idealna do użycia z ViewModel
-     */
+
     public LiveData<List<Expense>> observeExpenses() {
         MutableLiveData<List<Expense>> expensesLiveData = new MutableLiveData<>();
         String userId = auth.getCurrentUser().getUid();
@@ -92,16 +85,11 @@ public class ExpenseRepository {
 
         userExpensesRef.addValueEventListener(listener);
 
-        // Zapisz listener, żeby móc go później usunąć
         activeListeners.put(userId, listener);
 
         return expensesLiveData;
     }
 
-    /**
-     * NOWA METODA: Usuwa aktywny listener dla danego użytkownika
-     * Wywoływać w onCleared() ViewModel lub onDestroyView() Fragment
-     */
     public void removeExpensesListener() {
         if (auth.getCurrentUser() != null) {
             String userId = auth.getCurrentUser().getUid();
@@ -114,10 +102,6 @@ public class ExpenseRepository {
         }
     }
 
-
-    /**
-     * Istniejąca metoda usuwania - zachowana
-     */
     public void deleteExpense(Expense expense, DeleteCallback callback) {
         databaseRef.child(expense.getUserId())
                 .child(expense.getId())
@@ -127,7 +111,6 @@ public class ExpenseRepository {
     }
 
 
-    // ==================== CALLBACKS ====================
 
     public interface ExpenseCallback {
         void onSuccess(List<Expense> expenses);

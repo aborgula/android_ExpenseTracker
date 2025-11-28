@@ -2,7 +2,6 @@ package com.example.expensetracker.utils;
 
 import android.content.Context;
 import android.widget.TextView;
-
 import com.example.expensetracker.R;
 import com.example.expensetracker.model.Expense;
 import com.github.mikephil.charting.components.MarkerView;

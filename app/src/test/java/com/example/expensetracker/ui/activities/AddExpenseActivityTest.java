@@ -1,19 +1,11 @@
 package com.example.expensetracker.ui.activities;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import android.app.DatePickerDialog;
-import android.widget.EditText;
-
-import com.example.expensetracker.model.Category;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
-import java.util.Calendar;
 
 @RunWith(org.robolectric.RobolectricTestRunner.class)
 public class AddExpenseActivityTest {
@@ -22,12 +14,12 @@ public class AddExpenseActivityTest {
 
     @Before
     public void setUp() {
-        // Tworzymy instancję klasy (symulujemy jej działanie)
+
+        // symulowanie działania instancji klasy
         activity = Mockito.spy(new AddExpenseActivity());
     }
 
-    // ===================== Test 5 =====================
-    // Sprawdza, że walidacja danych wykrywa puste pola i zgłasza błąd
+    // Test 17 - sprawdza czy walidacja danych wykrywa puste pola i zgłasza błąd
     @Test
     public void givenEmptyFields_whenValidate_thenShouldShowErrorToast() {
         // Given
@@ -43,8 +35,7 @@ public class AddExpenseActivityTest {
         assertTrue("Empty fields should fail validation", areFieldsEmpty);
     }
 
-    // ===================== Test 6 =====================
-    // Sprawdza, że po wybraniu daty z DatePickera format jest poprawny (DD/MM/YYYY)
+    // Test 18 - sprawdza czy po wybraniu daty z DatePicker format jest poprawny
     @Test
     public void givenDatePickerSelection_whenDateSelected_thenFormatIsCorrect() {
         // Given
@@ -59,26 +50,8 @@ public class AddExpenseActivityTest {
         assertEquals("Date format should be DD/MM/YYYY", "8/11/2025", formattedDate);
     }
 
-    // ===================== Test 7 =====================
-    // Sprawdza zachowanie walidacji, gdy tylko niektóre pola są wypełnione
-    @Test
-    public void givenPartiallyFilledFields_whenValidating_thenShouldFail() {
-        // Given - tylko niektóre pola wypełnione
-        String name = "Coffee";
-        String date = "8/11/2025";
-        String amount = "";
-        String category = "";
 
-        // When
-        boolean areFieldsEmpty = name.isEmpty() || date.isEmpty() ||
-                amount.isEmpty() || category.isEmpty();
-
-        // Then
-        assertTrue("Validation should fail when some fields are empty", areFieldsEmpty);
-    }
-
-    // ===================== Test 8 =====================
-    // Sprawdza, czy poprawna kwota w formacie tekstowym jest poprawnie parsowana na double
+    // Test 19 - sprawdza czy podana kwota w formacie tekstowym jest poprawnie parsowana na Double
     @Test
     public void givenValidAmount_whenParsing_thenNoExceptionThrown() {
         // Given

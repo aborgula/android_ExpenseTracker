@@ -9,10 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.expensetracker.R;
 import com.example.expensetracker.model.Expense;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;

@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-
 import com.example.expensetracker.ui.fragments.ExpenseFragment;
 import com.example.expensetracker.R;
 import com.example.expensetracker.ui.fragments.StatsFragment;

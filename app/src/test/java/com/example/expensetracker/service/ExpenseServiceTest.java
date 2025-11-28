@@ -43,7 +43,6 @@ public class ExpenseServiceTest {
         return expense;
     }
 
-    // ========== TESTY SORTOWANIA ==========
 
     // Test 1 - test sortowania rosnąco
     @Test
@@ -105,8 +104,6 @@ public class ExpenseServiceTest {
         assertTrue(sorted.isEmpty());
     }
 
-
-    // ========== TESTY FILTROWANIA ==========
 
     // Test 5 - test sprawdzający filtrowanie przy kwocie minimalnej
     @Test
@@ -191,7 +188,6 @@ public class ExpenseServiceTest {
         assertTrue(filtered.isEmpty());
     }
 
-    // ========== TESTY EDGE CASES ==========
 
     // Test 11 - test sprawdzający obsługiwanie wydatków z kwotą 0
     @Test

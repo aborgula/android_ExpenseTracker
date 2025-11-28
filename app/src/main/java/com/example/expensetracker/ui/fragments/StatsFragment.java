@@ -26,25 +26,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * Fragment odpowiada TYLKO za UI - obsługę widoków i wyświetlanie danych
- * Używa ExpenseService zamiast oddzielnego FilterService
- */
+
 public class StatsFragment extends Fragment {
 
     private StatsViewModel viewModel;
 
-    // UI Components
     private MaterialButton btnToday, btnYesterday, btnWeek, btnMonth, btnYear;
     private LineChart lineChart;
     private TextView textTotal;
 
-    // Constants
     private static final String ACTIVE_COLOR = "#63B1A1";
     private static final String TEXT_ACTIVE = "#FFFFFF";
     private static final String TEXT_INACTIVE = "#63B1A1";
 
-    // Cache dla aktualnych wydatków (dla markera wykresu)
     private List<Expense> currentExpenses = new ArrayList<>();
 
     @Override
@@ -52,10 +46,8 @@ public class StatsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_stats, container, false);
 
-        // Inicjalizacja ViewModel
         viewModel = new ViewModelProvider(this).get(StatsViewModel.class);
 
-        // Inicjalizacja widoków
         initViews(view);
         setupLineChart();
         setupFilterButtons();
@@ -74,9 +66,7 @@ public class StatsFragment extends Fragment {
         btnYear = view.findViewById(R.id.btn_year);
     }
 
-    /**
-     * Konfiguruje przyciski filtrowania
-     */
+
     private void setupFilterButtons() {
         List<MaterialButton> buttons = new ArrayList<>();
         buttons.add(btnToday);
@@ -85,14 +75,12 @@ public class StatsFragment extends Fragment {
         buttons.add(btnMonth);
         buttons.add(btnYear);
 
-        // Ustawienie listenera dla każdego przycisku
         btnToday.setOnClickListener(v -> onFilterButtonClicked(TimeFilter.TODAY, buttons));
         btnYesterday.setOnClickListener(v -> onFilterButtonClicked(TimeFilter.YESTERDAY, buttons));
         btnWeek.setOnClickListener(v -> onFilterButtonClicked(TimeFilter.WEEK, buttons));
         btnMonth.setOnClickListener(v -> onFilterButtonClicked(TimeFilter.MONTH, buttons));
         btnYear.setOnClickListener(v -> onFilterButtonClicked(TimeFilter.YEAR, buttons));
 
-        // Domyślnie zaznacz "Today"
         updateButtonStates(btnToday, buttons);
     }
 
@@ -117,9 +105,7 @@ public class StatsFragment extends Fragment {
         }
     }
 
-    /**
-     * Aktualizuje stan wizualny przycisków
-     */
+
     private void updateButtonStates(MaterialButton activeButton, List<MaterialButton> allButtons) {
         for (MaterialButton button : allButtons) {
             if (button == activeButton) {
@@ -132,25 +118,20 @@ public class StatsFragment extends Fragment {
         }
     }
 
-    /**
-     * Obserwuje zmiany w ViewModel i aktualizuje UI
-     */
+
     private void observeViewModel() {
-        // Obserwuj przefiltrowane wydatki
         viewModel.getFilteredExpenses().observe(getViewLifecycleOwner(), expenses -> {
             if (expenses != null) {
                 currentExpenses = expenses;
             }
         });
 
-        // Obserwuj całkowitą sumę
         viewModel.getTotalAmount().observe(getViewLifecycleOwner(), total -> {
             if (total != null) {
                 textTotal.setText(String.format(Locale.getDefault(), "Total: $%.2f", total));
             }
         });
 
-        // Obserwuj dane zgrupowane według dni (dla wykresu)
         viewModel.getDailyGroupedExpenses().observe(getViewLifecycleOwner(), dailyData -> {
             if (dailyData != null) {
                 updateLineChart(dailyData);
@@ -169,10 +150,6 @@ public class StatsFragment extends Fragment {
         lineChart.getLegend().setEnabled(false);
     }
 
-    /**
-     * Aktualizuje wykres na podstawie zgrupowanych danych
-     * @param dailySums Mapa: klucz = data, wartość = suma wydatków
-     */
     private void updateLineChart(Map<String, Float> dailySums) {
         if (dailySums == null || dailySums.isEmpty()) {
             lineChart.clear();
@@ -180,7 +157,6 @@ public class StatsFragment extends Fragment {
             return;
         }
 
-        // Przygotuj dane dla wykresu
         List<Entry> entries = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
@@ -191,7 +167,6 @@ public class StatsFragment extends Fragment {
             index++;
         }
 
-        // Utwórz dataset
         LineDataSet dataSet = new LineDataSet(entries, "Daily Expenses");
         dataSet.setColor(Color.parseColor(ACTIVE_COLOR));
         dataSet.setCircleColor(Color.parseColor(ACTIVE_COLOR));
@@ -203,7 +178,6 @@ public class StatsFragment extends Fragment {
         LineData lineData = new LineData(dataSet);
         lineChart.setData(lineData);
 
-        // Konfiguruj oś X
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
@@ -218,7 +192,6 @@ public class StatsFragment extends Fragment {
             }
         });
 
-        // Ustaw marker (popup przy kliknięciu w punkt)
         if (getContext() != null) {
             ExpenseMarkerView marker = new ExpenseMarkerView(
                     requireContext(),
@@ -228,7 +201,6 @@ public class StatsFragment extends Fragment {
             lineChart.setMarker(marker);
         }
 
-        // Odśwież wykres
         lineChart.animateX(500);
         lineChart.invalidate();
     }
