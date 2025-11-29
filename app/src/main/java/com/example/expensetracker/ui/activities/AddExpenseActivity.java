@@ -77,7 +77,7 @@ public class AddExpenseActivity extends AppCompatActivity {
 
                     dbRef.child(expenseId).setValue(expense)
                             .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Expense saved to Firebase!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "Expense saved!", Toast.LENGTH_SHORT).show();
                                 finish();
                             })
                             .addOnFailureListener(e ->

@@ -11,9 +11,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.example.expensetracker.R;
 import com.example.expensetracker.model.Expense;
+import com.example.expensetracker.repository.ExpenseRepository;
+import com.example.expensetracker.service.ExpenseService;
 import com.example.expensetracker.service.ExpenseService.TimeFilter;
 import com.example.expensetracker.utils.ExpenseMarkerView;
 import com.example.expensetracker.viewmodel.StatsViewModel;
+import com.example.expensetracker.viewmodel.StatsViewModelFactory;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -46,7 +49,15 @@ public class StatsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_stats, container, false);
 
-        viewModel = new ViewModelProvider(this).get(StatsViewModel.class);
+        // Initialize repository and service
+        ExpenseRepository repository = new ExpenseRepository();
+        ExpenseService expenseService = new ExpenseService();
+
+        // Create factory with dependencies
+        StatsViewModelFactory factory = new StatsViewModelFactory(repository, expenseService);
+
+        // Create ViewModel using factory
+        viewModel = new ViewModelProvider(this, factory).get(StatsViewModel.class);
 
         initViews(view);
         setupLineChart();
@@ -137,8 +148,6 @@ public class StatsFragment extends Fragment {
                 updateLineChart(dailyData);
             }
         });
-
-
     }
 
     private void setupLineChart() {
