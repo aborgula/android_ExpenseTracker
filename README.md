@@ -7,11 +7,10 @@ Alicja Borgula
 Aplikacja do śledzenia wydatków TrackExpense
 
 ## Opis projektu
-TrackExpense to aplikacja mobilna umożliwiająca użytkownikom zapisywanie
-i kontrolowanie codziennych wydatków. Aplikacja pozwala dodawać wydatki,
-kategoryzować je oraz analizować historię finansową użytkownika.
-Celem projektu jest ułatwienie zarządzania budżetem osobistym oraz
-zastosowanie praktyk testowania i zapewniania jakości oprogramowania.
+TrackExpense to aplikacja mobilna, która umożliwia użytkownikom zapisywanie i kontrolowanie codziennych wydatków. Po uruchomieniu aplikacji wymagane jest zarejestrowanie się lub zalogowanie przy użyciu nazwy użytkownika, adresu e-mail oraz hasła.
+Aplikacja pozwala dodawać wydatki, kategoryzować je i analizować historię finansową użytkownika. Podczas dodawania wydatku należy podać jego nazwę, wybrać kategorię, określić datę oraz kwotę. Zapisane wydatki są wyświetlane w formie listy, którą można przefiltrować według kategorii i kwoty oraz posortować według ceny, nazwy lub daty.
+Po przełączeniu się w dolnym menu na ekran statystyk, użytkownik może przeglądać wizualizacje wydatków na wykresach, prezentujące dane z ostatniego dnia, dwóch dni, tygodnia, miesiąca lub roku.
+Celem projektu jest ułatwienie zarządzania budżetem osobistym oraz zastosowanie praktyk testowania i zapewniania jakości oprogramowania.
 
 ## Uruchomienie projektu
 1. Otworzyć Android Studio.
