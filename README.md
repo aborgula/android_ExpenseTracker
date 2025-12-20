@@ -57,8 +57,8 @@ Kolejnym testowanym elementem jest **model `Expense`**, który przechowuje dane 
 
 13. Poprawność konstruktora oraz getterów (`Expense(...)` i `getId()`, `getName()`, `getDate()`, `getAmount()`, `getCategory()`, `getUserId()`).
 14. Poprawne działanie settera `setId()`.
-15. Poprawne ustawianie i zwracanie kwoty wydatku (`getAmount()`).
-16. Sprawdzanie domyślnych wartości pól przy pustym konstruktorze (`new Expense()`).
+15. Poprawne ustawianie i zwracanie kwoty wydatku.
+16. Sprawdzanie domyślnych wartości pól przy pustym konstruktorze.
 
 **Lokalizacja testów jednostkowych dla klasy Expense:**  
 `app/src/test/java/com/example/expensetracker/model/ExpenseTest.java`
@@ -150,11 +150,10 @@ Projekt został zrealizowany z wykorzystaniem następujących technologii, narz�
 - **LiveData** – obserwowalne źródło danych, umożliwiające reagowanie interfejsu na zmiany danych.
 
 ### Interfejs użytkownika
-- **Material Design Components** – nowoczesne komponenty interfejsu zgodne z wytycznymi Material Design.
 - **ConstraintLayout** – elastyczny system tworzenia układów interfejsu.
 - **MPAndroidChart** – biblioteka do wizualizacji danych w postaci wykresów (statystyki wydatków).
 
-### Przechowywanie danych i backend
+### Przechowywanie danych
 - **Firebase Authentication** – obsługa rejestracji i logowania użytkowników.
 - **Firebase Firestore** – chmurowa baza danych do przechowywania wydatków.
 - **Firebase Realtime Database** – przechowywanie i synchronizacja danych w czasie rzeczywistym.
