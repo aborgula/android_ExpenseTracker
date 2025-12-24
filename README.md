@@ -45,8 +45,8 @@ oraz filtrowanie listy wydatków.
 12. Poprawne działanie sortowania przy identycznych kwotach.
 
 
-**Lokalizacja testów w projekcie:**
-`app/src/test/java/com/example/expensetracker/service/ExpenseServiceTest.java`
+**Lokalizacja testów w projekcie:**  
+[ExpenseServiceTest.java](app/src/test/java/com/example/expensetracker/service/ExpenseServiceTest.java)
 
 ---
 
@@ -60,7 +60,7 @@ Kolejnym testowanym elementem jest **model `Expense`**, który przechowuje dane 
 16. Sprawdzanie domyślnych wartości pól przy pustym konstruktorze.
 
 **Lokalizacja testów jednostkowych dla klasy Expense:**  
-`app/src/test/java/com/example/expensetracker/model/ExpenseTest.java`
+[ExpenseTest.java](app/src/test/java/com/example/expensetracker/model/ExpenseTest.java)
 
 
 ---
@@ -77,8 +77,7 @@ Kolejnym testowanym elementem jest **integracja `StatsViewModel` z `ExpenseServi
 4. Sprawdzenie, czy po pojawieniu się nowych danych w LiveData suma wydatków zostaje zaktualizowana
 
 **Lokalizacja testów integracyjnych:**  
-`app/src/test/java/com/example/expensetracker/integration/StatsViewModelIntegrationTest.java`
-
+[StatsViewModelIntegrationTest.java](app/src/test/java/com/example/expensetracker/integration/StatsViewModelIntegrationTest.java)
 
 ---
 
@@ -111,7 +110,7 @@ oraz czy obserwatorzy otrzymują poprawne dane.
     bez utraty aktywnych filtrów.
 
 **Lokalizacja testów integracyjnych komunikacji warstw:**  
-`app/src/test/java/com/example/expensetracker/integration/LayerCommunicationTest.java`
+[LayerCommunicationTest.java](app/src/test/java/com/example/expensetracker/integration/LayerCommunicationTest.java)
 
 
 ## Przypadki testowe dla testera manualnego
