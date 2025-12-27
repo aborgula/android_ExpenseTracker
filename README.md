@@ -1,8 +1,5 @@
 # Projekt aplikacji mobilnej na zajęcia z testowania oprogramowania
 
-
-# Testowanie i Jakość Oprogramowania
-
 ## Autor
 Alicja Borgula
 
